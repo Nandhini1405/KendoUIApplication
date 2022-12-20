@@ -1,0 +1,127 @@
+﻿@using Kendo.Mvc.UI
+
+
+@*<div id="grid"></div>*@
+
+<h1 class="text-center">Order Details</h1>
+
+@(Html.Kendo().Chart<KendoUIGrid.Models.Order_Detail>()
+    .Name("grid")
+    //.Pageable()
+    .Pageable(p =>
+    {
+        p.PageSizes(new[] { 10, 15, 20 }); // Dropdown to select items per page
+    })
+    .Pageable(pager => pager.ButtonCount(3))
+    .ColumnMenu(columnMenu => columnMenu.Columns(false))
+    .Sortable()
+    .HtmlAttributes(new { @class = "gridMain" })
+    .ToolBar(tools => tools.Excel())
+    .ToolBar(tools => tools.Pdf())
+    .Pdf(pdf => pdf
+            .PaperSize("A4")
+            .AllPages()
+        //    .Margin("2cm", "1cm", "1cm", "1cm")
+        //    .Landscape()
+        .RepeatHeaders()
+        //.Scale(0.75)
+        //.TemplateId("page-template")
+        )
+    .Excel(excel => excel
+            .FileName("Order_Details.xlsx")
+            .AllPages(true))
+    .Events(events => events
+            .Change("onChange")
+        //.DataBound("onDataBound")
+        //.DataBinding("onDataBinding")
+        //.Sort("onSorting")
+        //.Filter("onFiltering")
+        //.Group("onGrouping")
+        //.Page("onPaging")
+        //.GroupCollapse("onGroupCollapse")
+        //.GroupExpand("onGroupExpand")
+
+        )
+    .Columns(columns =>
+    {
+        columns.Bound(o => o.OrderID).HeaderHtmlAttributes(new { @class = "gridHeader" });
+        columns.Bound(o => o.ProductID).HeaderHtmlAttributes(new { @class = "gridHeader" });
+        columns.Bound(o => o.UnitPrice).HeaderHtmlAttributes(new { @class = "gridHeader" });
+        columns.Bound(o => o.Quantity).HeaderHtmlAttributes(new { @class = "gridHeader" });
+        columns.Bound(o => o.Discount).HeaderHtmlAttributes(new { @class = "gridHeader" });
+    })
+    .Filterable(filterable => filterable
+        .Extra(false)
+        .Operators(operators => operators
+            .ForString(str => str.Clear()
+                .StartsWith("Starts with")
+                .IsEqualTo("Is equal to")
+                .IsNotEqualTo("Is not equal to")
+            ))
+        )
+    //.Scrollable(scrollable => scrollable.Virtual(true))
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(10)
+    .Read(read => read.Action("Order_Details_Read", "Grid"))
+    )
+)
+<script type="text/javascript">
+
+    function onChange(arg) {
+        var selected = $.map(this.select(), function (item) {
+            return $(item).text();
+        });
+
+        kendoConsole.log("Selected: " + selected.length + " item(s), [" + selected.join(", ") + "]");
+    }
+ </script>
+@*<style>
+    .gridMain {
+        border: 1px solid black;
+        border-bottom: 2px solid #23dede;
+    }
+    .gridHeader {
+        background-color: #23dede;
+        text-align: center;
+    }
+</style>*@
+@*<script>
+        $("#grid").kendoGrid({
+            height: 400,
+            columns: [
+                {field: "UnitPrice"},
+                {field: "Quantity"},
+                {field: "Discount"}
+            ],
+            toolbar: ["excel", "pdf"],
+            dataSource: {
+                type: "aspnetmvc-ajax",
+                transport: {
+                    read: {
+                         url: "Order_Details_Read"
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    model: {
+                        id: "OrderID",
+                        fields: {
+                            UnitPrice: { type: "number"},
+                            Quantity: { type: "number"},
+                            Discount: { type: "number"}
+                        }
+                    }
+                },
+                serverPaging: true,
+                serverSorting: true,
+                serverSorting: true,
+            },
+            columnMenu: true,
+            sortable: {
+                mode: "multiple"
+            },
+            scrollable: true
+        })
+
+    </script>*@
